@@ -61,108 +61,120 @@ Error code 4: Missing required configuration parameter
 
 ###CONFIGURATION FILE PARAMETERS
 
-KEY: port
+Key: port (mandatory)
 
-USAGE EXAMPLE: port=80
-
-TYPE: MANDATORY
-
-
-KEY: hostname
-
-USAGE EXAMPLE: hostname=yourserver.yourdomain.org
-
-TYPE: MANDATORY
+Example:
+```
+port=80
+```
 
 
-KEY: icondir
+Key: hostname (mandatory)
 
-USAGE EXAMPLE: icondir=/icons
-
-TYPE: MANDATORY
-
-NOTE: Directory must be expressed relative to the root directory. May be translated.
-
-
-KEY: rootdir
-
-USAGE EXAMPLE: rootdir=/sys/www/htdocs
-
-TYPE: MANDATORY
+Example:
+```
+hostname=yourserver.yourdomain.org
+```
 
 
-KEY: indices
+Key: icondir (mandatory)
 
-USAGE EXAMPLE: indices=index.html
+Example:
+```
+icondir=/icons
+```
 
-USAGE EXAMPLE 2: indices=index.html,index.htm,index.shtml
-
-TYPE: MANDATORY
-
-NOTE: May take either a single parameter or multiple parameters.
-
-
-KEY: userdirchar
-
-USAGE EXAMPLE: userdirchar=~
-
-TYPE: MANDATORY
-
-NOTE: Character in URI to trigger user home directory expansion.
+Note: Directory must be expressed relative to the root directory. May be translated.
 
 
-KEY: userdirprefix
+Key: rootdir (mandatory)
 
-USAGE EXAMPLE: userdirprefix=/usr
-
-TYPE: MANDATORY
-
-NOTE: Directory prefix to append for user home directory expansion.
-
-
-KEY: userdirname
-
-USAGE EXAMPLE: userdirname=public_html
-
-TYPE: MANDATORY
-
-NOTE: Directory to search for in user home while performing home directory expansion.
+Example:
+```
+rootdir=/sys/www/htdocs
+```
 
 
-KEY: reqlog
+Key: indices (mandatory)
 
-USAGE EXAMPLE: reqlog=/sys/www/logs/request.log
+Examples:
+```
+indices=index.html
 
-TYPE: MANDATORY
+indices=index.html,index.htm,index.shtml
+```
 
-NOTE: HTTP request log
-
-
-KEY: errlog
-
-USAGE EXAMPLE: errlog=/sys/www/logs/error.log
-
-TYPE: MANDATORY
-
-NOTE: HTTP error log
+Note: May take either a single parameter or multiple parameters.
 
 
-KEY: translate
+Key: userdirchar (mandatory)
 
-USAGE EXAMPLE: translate=/icons,/sys/www/icons
+Example:
+```
+userdirchar=~
+```
 
-TYPE: OPTIONAL
-
-NOTE: Generalized directory translation. First argument is pattern to match, second is replacement text.
+Note: Character in URI to trigger user home directory expansion.
 
 
-KEY: htpassfile
+Key: userdirprefix (mandatory)
 
-USAGE EXAMPLE: htpassfile=.htpasswd
+Example:
+```
+userdirprefix=/usr
+```
 
-TYPE: OPTIONAL
+Note: Directory prefix to append for user home directory expansion.
 
-NOTE: File to check for in directories to interpret as htpasswd file. If the parameter is omitted, htpasswd support is disabled.
+
+Key: userdirname (mandatory)
+
+Example:
+```
+userdirname=public_html
+```
+
+Note: Directory to search for in user home while performing home directory expansion.
+
+
+Key: reqlog (mandatory)
+
+Example:
+```
+reqlog=/sys/www/logs/request.log
+```
+
+Note: HTTP request log
+
+
+Key: errlog (mandatory)
+
+Example:
+```
+errlog=/sys/www/logs/error.log
+```
+
+Note: HTTP error log
+
+
+Key: translate (optional)
+
+Example:
+```
+translate=/icons,/sys/www/icons
+```
+
+Note: Generalized directory translation. First argument is pattern to match, second is replacement text.
+
+
+Key: htpassfile (optional)
+
+Example:
+```
+htpassfile=.htpasswd
+```
+
+Note: File to check for in directories to interpret as htpasswd file. If the parameter is omitted, htpasswd support is disabled.
 
 
 ###HTPASSWD FILE FORMAT
