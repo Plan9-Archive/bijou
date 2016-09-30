@@ -1,0 +1,34 @@
+</$objtype/mkfile
+ALL=httpd htpasswd
+
+all:V:		$ALL
+
+httpd:	base64_codec.$0 check_auth.$0 check_path.$0 check_request.$0 free_structs.$0 generate_path.$0 http_errors.$0 init_structs.$0 main.$0 parse_request.$0 read_config.$0 read_htpasswd.$0 read_line.$0 serve_dir.$0 serve_file.$0 time.$0 uri_codec.$0
+		$LD $LDFLAGS -o $target base64_codec.8 check_auth.8 check_path.8 check_request.8 free_structs.8 generate_path.8 http_errors.8 init_structs.8 main.8 parse_request.8 read_config.8 read_htpasswd.8 read_line.8 serve_dir.8 serve_file.8 time.8 uri_codec.8
+
+htpasswd:	htpasswd.$0
+		$LD $LDFLAGS -o $target htpasswd.8
+
+clean:
+		rm *.8 httpd htpasswd
+
+install:
+		mkdir /sys/www
+		mkdir /sys/www/bin
+		mkdir /sys/www/cgi-bin
+		mkdir /sys/www/etc
+		mkdir /sys/www/htdocs
+		mkdir /sys/www/logs
+		cp httpd /sys/www/bin/httpd
+		cp htpasswd /sys/www/bin/htpasswd
+		cp ../go /sys/www/bin
+		cp ../icons.tar /sys/www
+		cp ../example.conf /sys/www/etc/httpd.conf
+		cp ../index.html /sys/www/htdocs
+		cp ../power36.gif /sys/www/htdocs
+		cd /sys/www
+		tar xf /sys/www/icons.tar
+		rm /sys/www/icons.tar
+
+%.$0:	%.c
+		$CC $CFLAGS $stem.c
