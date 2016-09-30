@@ -55,8 +55,11 @@ configuration file error N
 The error code N may be cross referenced with the table below to determine the cause of the error.
 
 Error code 1: Failed to open specified configuration file
+
 Error code 2: Parse error or invalid key in configuration file
+
 Error code 3: Duplicate key in configuration file
+
 Error code 4: Missing required configuration parameter
 
 ###CONFIGURATION FILE PARAMETERS
