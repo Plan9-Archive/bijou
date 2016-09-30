@@ -62,63 +62,108 @@ Error code 4: Missing required configuration parameter
 ###CONFIGURATION FILE PARAMETERS
 
 KEY: port
+
 USAGE EXAMPLE: port=80
+
 TYPE: MANDATORY
+
 
 KEY: hostname
+
 USAGE EXAMPLE: hostname=yourserver.yourdomain.org
+
 TYPE: MANDATORY
+
 
 KEY: icondir
+
 USAGE EXAMPLE: icondir=/icons
+
 TYPE: MANDATORY
+
 NOTE: Directory must be expressed relative to the root directory. May be translated.
 
+
 KEY: rootdir
+
 USAGE EXAMPLE: rootdir=/sys/www/htdocs
+
 TYPE: MANDATORY
+
 
 KEY: indices
+
 USAGE EXAMPLE: indices=index.html
+
 USAGE EXAMPLE 2: indices=index.html,index.htm,index.shtml
+
 TYPE: MANDATORY
+
 NOTE: May take either a single parameter or multiple parameters.
 
+
 KEY: userdirchar
+
 USAGE EXAMPLE: userdirchar=~
+
 TYPE: MANDATORY
+
 NOTE: Character in URI to trigger user home directory expansion.
 
+
 KEY: userdirprefix
+
 USAGE EXAMPLE: userdirprefix=/usr
+
 TYPE: MANDATORY
+
 NOTE: Directory prefix to append for user home directory expansion.
 
+
 KEY: userdirname
+
 USAGE EXAMPLE: userdirname=public_html
+
 TYPE: MANDATORY
+
 NOTE: Directory to search for in user home while performing home directory expansion.
 
+
 KEY: reqlog
+
 USAGE EXAMPLE: reqlog=/sys/www/logs/request.log
+
 TYPE: MANDATORY
+
 NOTE: HTTP request log
 
+
 KEY: errlog
+
 USAGE EXAMPLE: errlog=/sys/www/logs/error.log
+
 TYPE: MANDATORY
+
 NOTE: HTTP error log
 
+
 KEY: translate
+
 USAGE EXAMPLE: translate=/icons,/sys/www/icons
+
 TYPE: OPTIONAL
+
 NOTE: Generalized directory translation. First argument is pattern to match, second is replacement text.
 
+
 KEY: htpassfile
+
 USAGE EXAMPLE: htpassfile=.htpasswd
+
 TYPE: OPTIONAL
-NOTE: File to check for in directories to interpret as htpasswd file. If the parameter is omitted, htpasswd
-support is disabled.
+
+NOTE: File to check for in directories to interpret as htpasswd file. If the parameter is omitted, htpasswd support is disabled.
+
 
 ###HTPASSWD FILE FORMAT
 
