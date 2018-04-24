@@ -3,59 +3,46 @@
 #include "main.h"
 
 // if this returns 0 then the path tries to go below the root
-
 int check_directory_path(char *path) {
+    int i, d;
+	
+    d = 0;    // path depth counter
+    i = 1;    // position-within-path-string counter
 
-	int i, d;
+    while (1) {
+        /* hit end of string; stop */
+        if (i >= strlen(path)) {
+            break;
+        }
 
-	d = 0;	// path depth counter
+        // doing this lookbehind should catch the case of multiple concurrent slashes in the path
+        if ((path[i] == '/') && (path[i-1] != '/' )) {
+            d = d + 1;
+            i = i + 1;
+        }
 
-	i = 1;		// position-within-path-string counter
+        /* handle .. in middle of string */
+        else if ((path[i] == '.') && (path[i-1] == '/') && (path[i+1] == '.') && (path[i+2] == '/')) {
+            i = i + 3;
+            d = d - 1;
+        }
 
-	while (1) {
+        /* handle special case .. at end of string */
+        else if ((path[i] == '.') && (path[i-1] == '/') && (path[i+1] == '.') && ( (i+2) == strlen(path))) {
+            i = i + 3;
+            d = d - 1;
+        }
 
-		/* hit end of string; stop */
+        /* regular character */
+        else {
+            i = i + 1;
+        }
 
-		if ( i >= strlen(path) ) {
-			break;
-		}
+        /* fallen below the root; stop */
+        if (d < 0) {
+            break;
+        }
+    }
 
-		// doing this lookbehind should catch the case of multiple concurrent slashes in the path
-
-		if ( (path[i] == '/') && (path[i-1] != '/' ) ) {
-			d = d + 1;
-			i = i + 1;
-		}
-
-		/* handle .. in middle of string */
-
-		else if ( (path[i] == '.') && (path[i-1] == '/') && (path[i+1] == '.') && (path[i+2] == '/') ) {
-			i = i + 3;
-			d = d - 1;
-
-		}
-
-		/* handle special case .. at end of string */
-
-		else if ( (path[i] == '.') && (path[i-1] == '/') && (path[i+1] == '.') && ( (i+2) == strlen(path) ) ) {
-			i = i + 3;
-			d = d - 1;
-
-		}
-
-		/* regular character */
-
-		else {
-			i = i + 1;
-		}
-
-		/* fallen below the root; stop */
-
-		if ( d < 0 ) {
-			break;
-		}
-
-	}
-
-	return d;
+    return d;
 }
