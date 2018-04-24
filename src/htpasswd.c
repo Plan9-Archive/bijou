@@ -11,65 +11,58 @@ int main(int argc, char **argv);
 int read_line(int infd, char **ptr);
 
 int main(int argc, char **argv) {
+    uchar digest[SHA1dlen];
 
-	uchar digest[SHA1dlen];
+    DigestState *s;
 
-	DigestState *s;
+    if (argc != 3) {
+        printf("usage: %s username password >> .htpasswd\n", argv[0]);
+        exits(0);
+    }
 
-	if ( argc != 3 ) {
+    int i;
 
-		printf("usage: %s username password >> .htpasswd\n", argv[0]);
-		exits(0);
-	}
+    s = sha1( (uchar *)argv[2], strlen(argv[2]), digest, nil);
 
-	int i;
+    printf("%s:", argv[1] );
 
-	s = sha1( (uchar *)argv[2], strlen(argv[2]), digest, nil);
+    for (i = 0; i < SHA1dlen; i++) {
+        printf("%02.x", digest[i] );
+    }
 
-	printf("%s:", argv[1] );
+    printf("\n");
 
-	for ( i = 0; i < SHA1dlen; i++ ) {
-		printf("%02.x", digest[i] );
-	}
-
-	printf("\n");
-
-	return 0;
+    return 0;
 }
 
 /* read in a line from the specified file descriptor to the specified buffer */
-
 int read_line(int infd, char **ptr) {
+    int len = 1;
+    int n;
 
-	int len = 1;
-	int n;
+    *ptr = malloc(sizeof(char));
 
-	*ptr = malloc(sizeof(char));
+    while (1) {
+        n = read(infd, &(*(*ptr+len-1)), 1);
 
-	while (1) {
+        *ptr = realloc(*ptr, (len+1)*sizeof(char));
 
-		n = read(infd, &(*(*ptr+len-1)), 1);
+        if (*ptr == 0) {
+            exits("REALLOC");
+        }
 
-		*ptr = realloc(*ptr, (len+1)*sizeof(char));
+        if (*(*ptr+len-1) == 10) {
+            *(*ptr+len) = '\0';
+            break;
+        }
 
-		if ( *ptr == 0 ) {
-			exits("REALLOC");
-		}
+        /* disconnected */
+        if (n == 0) {
+            exits("DISCONNECTED");
+        }
 
-		if ( *(*ptr+len-1) == 10 ) {
-			*(*ptr+len) = '\0';
-			break;
-		}
+        len = len + 1;
+    }
 
-		/* disconnected */
-
-		if ( n == 0 ) {
-			exits("DISCONNECTED");
-		}
-
-		len = len + 1;
-
-	}
-
-	return len;
+    return len;
 }
