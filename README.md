@@ -2,7 +2,7 @@ Bijou HTTP Server v1.0 for Plan 9
 ---------------------------------
 Sean Caron scaron@umich.edu
 
-###INTRODUCTION
+### Introduction
 
 Bijou is a HTTP server for Plan 9 that more or less follows RFC 1945 and RFC 2616. It is descended in a rather remote way from the skeleton of a previously written gopher server, implemented in a general enough fashion to be adaptable to use serving HTTP as well.
 
@@ -10,7 +10,7 @@ This release of Bijou is likely not the fastest HTTP server ever written, but it
 
 Have fun!
 
-###INSTALLATION
+### Installation
 
 	tar xvf bijou-1.0.tar
 
@@ -27,7 +27,7 @@ Have fun!
 	/sys/www/bin/go
 
 
-###TODO
+### TODO
 
 * Implement methods besides GET and HEAD (e.g. PUT, POST, DELETE, TRACE)
 
@@ -36,7 +36,7 @@ Have fun!
 * Try to guess MIME types of files that are being served up
 
 
-###CONFIGURATION FILE FORMAT
+### Configuration file format
 
 The path to the configuration file is specified by the -f mandatory command line option when the HTTP server is started. The configuration file is just a plain text file that follows typical conventions. Comments are delimited by a pound sign as the first character on a line, and whitespace lines are ignored.
 
@@ -44,7 +44,7 @@ Configuration parameters are expressed in key=value pairs. Sometimes a configura
 
 Be sure that the last line in the configuration file is terminated with a newline, otherwise it will be ignored.
 
-###CONFIGURATION FILE ERROR CODE KEY
+### Configuration file error code key
 
 If there is a problem with the configuration file, the server will fail to start, and an error message will be logged to the console with the following format:
 
@@ -62,45 +62,46 @@ Error code 3: Duplicate key in configuration file
 
 Error code 4: Missing required configuration parameter
 
-###CONFIGURATION FILE PARAMETERS
+### Configuration file parameters
 
 Key: port (mandatory)
 
 Example:
+
 ```
 port=80
 ```
 
-
 Key: hostname (mandatory)
 
 Example:
+
 ```
 hostname=yourserver.yourdomain.org
 ```
 
-
 Key: icondir (mandatory)
 
 Example:
+
 ```
 icondir=/icons
 ```
 
 Note: Directory must be expressed relative to the root directory. May be translated.
 
-
 Key: rootdir (mandatory)
 
 Example:
+
 ```
 rootdir=/sys/www/htdocs
 ```
 
-
 Key: indices (mandatory)
 
 Examples:
+
 ```
 indices=index.html
 
@@ -109,36 +110,35 @@ indices=index.html,index.htm,index.shtml
 
 Note: May take either a single parameter or multiple parameters.
 
-
 Key: userdirchar (mandatory)
 
 Example:
+
 ```
 userdirchar=~
 ```
 
 Note: Character in URI to trigger user home directory expansion.
 
-
 Key: userdirprefix (mandatory)
 
 Example:
+
 ```
 userdirprefix=/usr
 ```
 
 Note: Directory prefix to append for user home directory expansion.
 
-
 Key: userdirname (mandatory)
 
 Example:
+
 ```
 userdirname=public_html
 ```
 
 Note: Directory to search for in user home while performing home directory expansion.
-
 
 Key: reqlog (mandatory)
 
@@ -149,16 +149,15 @@ reqlog=/sys/www/logs/request.log
 
 Note: HTTP request log
 
-
 Key: errlog (mandatory)
 
 Example:
+
 ```
 errlog=/sys/www/logs/error.log
 ```
 
 Note: HTTP error log
-
 
 Key: translate (optional)
 
@@ -169,7 +168,6 @@ translate=/icons,/sys/www/icons
 
 Note: Generalized directory translation. First argument is pattern to match, second is replacement text.
 
-
 Key: htpassfile (optional)
 
 Example:
@@ -179,8 +177,7 @@ htpassfile=.htpasswd
 
 Note: File to check for in directories to interpret as htpasswd file. If the parameter is omitted, htpasswd support is disabled.
 
-
-###HTPASSWD FILE FORMAT
+### Htpasswd file format
 
 Like the main server configuration file, the htpasswd files are just plain text files that follow the typical conventions. Comments are delimited by a pound sign as the first character of a line, and whitespace lines are ignored.
 
@@ -207,7 +204,7 @@ error log to assist in identifying the troublesome file.
 The server is designed such that it will not show the htpasswd file in a directory listing, and will deny any
 requests for a htpasswd file from a client.
 
-###CITATIONS
+### Citations
 
 The icons.tar archive contains the standard set of icons used to denote file types in raw directory listings and is included from the Apache HTTP distribution.
 
