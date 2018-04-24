@@ -3,85 +3,69 @@
 #include "main.h"
 
 /* free memory used by configuration structure variables */
-
 void free_config_vars(struct configuration *cfg) {
+    int i;
 
-	int i;
+    free(cfg->hostname);
+    free(cfg->port);
 
-	free(cfg->hostname);
-	free(cfg->port);
+    free(cfg->icondir);
+    free(cfg->rootdir);
 
-	free(cfg->icondir);
-	free(cfg->rootdir);
+    free(cfg->errlog);
+    free(cfg->reqlog);
 
-	free(cfg->errlog);
-	free(cfg->reqlog);
+    free(cfg->userchar);
+    free(cfg->userdir);
+    free(cfg->userdocs);
 
-	free(cfg->userchar);
-	free(cfg->userdir);
-	free(cfg->userdocs);
+    // free each index string
+    for (i = 0; i < cfg->n_indices; i++) {
+        free( *(cfg->indices+i) );
+    }
 
-	// free each index string
+    // free the array of indices
+    free(cfg->indices);
 
-	for ( i = 0; i < cfg->n_indices; i++ ) {
+    // free each translation string
+    for ( i = 0; i < cfg->n_translate; i++ ) {
+        free ( *(cfg->translate+i) );
+    }
 
-		free( *(cfg->indices+i) );
+    // free the array of translations
+    free(cfg->translate);
 
-	}
-
-	// free the array of indices
-
-	free(cfg->indices);
-
-	// free each translation string
-
-	for ( i = 0; i < cfg->n_translate; i++ ) {
-
-		free ( *(cfg->translate+i) );
-	}
-
-	// free the array of translations
-
-	free(cfg->translate);
-
-	return;
+    return;
 }
 
 /* free memory used by request structure variables */
-
 void free_request_vars(struct request *req) {
+    free(req->method);
+    free(req->uri);
+    free(req->version);
 
-	free(req->method);
-	free(req->uri);
-	free(req->version);
+    free(req->host);
+    free(req->useragent);
 
-	free(req->host);
-	free(req->useragent);
+    free(req->authtype);
+    free(req->authorization);
 
-	free(req->authtype);
-	free(req->authorization);
-
-	return;
+    return;
 }
 
 void free_htpasswd_vars(struct htpasswd *htpass) {
+    int i;
 
-	int i;
+    free(htpass->realm);
 
-	free(htpass->realm);
+    for (i = 0; i < htpass->n_users; i++) {
+        free(*(htpass->user+i) );
+        free(*(htpass->pass+i) );
+    }
 
-	for ( i = 0; i < htpass->n_users; i++ ) {
+    free(htpass->user);
 
-		free( *(htpass->user+i) );
+    free(htpass->pass);
 
-		free( *(htpass->pass+i) );
-
-	}
-
-	free( htpass->user );
-
-	free( htpass->pass );
-
-	return;
-
+    return;
 }
