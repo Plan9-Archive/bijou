@@ -9,61 +9,53 @@
 #include <libsec.h>
 
 /* whitespace padding to help with formatting directory listings */
-
 #define	TABLE_PAD	"                                        "
 
-
 /* server configuration record */
-
 struct configuration {
+    char *hostname;
+    char *port;
 
-	char *hostname;
-	char *port;
+    char *icondir;
+    char *rootdir;
 
-	char *icondir;
-	char *rootdir;
+    int n_indices;
+    char **indices;
 
-	int n_indices;
-	char **indices;
+    char *errlog;
+    char *reqlog;
 
-	char *errlog;
-	char *reqlog;
+    char *userchar;
+    char *userdir;
+    char *userdocs;
 
-	char *userchar;
-	char *userdir;
-	char *userdocs;
+    int n_translate;
+    char **translate;
 
-	int n_translate;
-	char **translate;
-
-	char *htpassfile;
+    char *htpassfile;
 };
 
 /* HTTP request */
-
 struct request {
+    char *method;
+    char *uri;
+    char *version;
 
-	char *method;
-	char *uri;
-	char *version;
+    char *host;
+    char *useragent;
 
-	char *host;
-	char *useragent;
-
-	char *authtype;
-	char *authorization;
+    char *authtype;
+    char *authorization;
 };
 
 /* htpasswd file data */
-
 struct htpasswd {
+    char *realm;
 
-	char *realm;
+    int n_users;
 
-	int n_users;
-
-	char **user;
-	char **pass;
+    char **user;
+    char **pass;
 };
 
 int main(int argc, char **argv);
