@@ -2,65 +2,63 @@
 
 #include "main.h"
 
+/* Initialize request structure */
 void initialize_request_struct(struct request *req) {
+    req->method = malloc(sizeof(char));
 
-	/* initialize request structure */
+    if (req->method == 0) {
+        exits("MALLOC");
+    }
 
-	req->method = malloc(sizeof(char));
+    strcpy(req->method, "");
 
-	if ( req->method == 0 ) {
-		exits("MALLOC");
-	}
+    req->uri = malloc(sizeof(char));
 
-	strcpy(req->method, "");
+    if (req->uri == 0) {
+        exits("MALLOC");
+    }
 
-	req->uri = malloc(sizeof(char));
+    strcpy(req->uri, "");
 
-	if ( req->uri == 0 ) {
-		exits("MALLOC");
-	}
+    req->version = malloc(sizeof(char));
 
-	strcpy(req->uri, "");
+    if (req->version == 0) {
+        exits("MALLOC");
+    }
 
-	req->version = malloc(sizeof(char));
+    strcpy(req->version, "");
 
-	if ( req->version == 0 ) {
-		exits("MALLOC");
-	}
+    req->host = malloc(sizeof(char));
 
-	strcpy(req->version, "");
+    if (req->host == 0) {
+        exits("MALLOC");
+    }
 
-	req->host = malloc(sizeof(char));
+    strcpy(req->host, "");
 
-	if ( req->host == 0 ) {
-		exits("MALLOC");
-	}
+    req->useragent = malloc(sizeof(char));
 
-	strcpy(req->host, "");
+    if (req->useragent == 0) {
+        exits("MALLOC");
+    }
 
-	req->useragent = malloc(sizeof(char));
+    strcpy(req->useragent, "");
 
-	if ( req->useragent == 0 ) {
-		exits("MALLOC");
-	}
+    req->authtype = malloc(sizeof(char));
 
-	strcpy(req->useragent, "");
+    if (req->authtype == 0) {
+        exits("MALLOC");
+    }
 
-	req->authtype = malloc(sizeof(char));
+    strcpy(req->authtype, "");
 
-	if ( req->authtype == 0 ) {
-		exits("MALLOC");
-	}
+    req->authorization = malloc(sizeof(char));
 
-	strcpy(req->authtype, "");
+    if (req->authorization == 0) {
+        exits("MALLOC");
+    }
 
-	req->authorization = malloc(sizeof(char));
+    strcpy(req->authorization, "");
 
-	if ( req->authorization == 0 ) {
-		exits("MALLOC");
-	}
-
-	strcpy(req->authorization, "");
-
-	return;
+    return;
 }
