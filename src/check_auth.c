@@ -10,159 +10,135 @@
 */
 
 int check_authorization(char *path, char *rpath, struct configuration cfg, struct request req, struct htpasswd *htpass) {
+    Dir *td;	
+    char *u, *p, *temp;
+    int q, j, r;
+    uchar digest[SHA1dlen];
+    DigestState *s;
+    char up[41];
 
-	Dir *td;	
-	char *u, *p, *temp;
-	int q, j, r;
-	uchar digest[SHA1dlen];
-	DigestState *s;
-	char up[41];
+    temp = malloc(sizeof(char)*(strlen(path)+1));
 
-	temp = malloc( sizeof(char)*(strlen(path)+1) );
+    if (temp == 0) {
+        exits("MALLOC");
+    }
 
-	if ( temp == 0 ) {
-		exits("MALLOC");
-	}
+    strcpy(temp, path);
 
-	strcpy(temp, path);
+    if (temp[strlen(temp)-1] != '/') {
+        for (j = strlen(temp); j > 0; j--) {
+            if (temp[j] == '/') {
+                temp[j+1] = '\0';
+                break;
+            }
+        }
+    }
 
-	if ( temp[strlen(temp)-1] != '/' ) {
+    temp = realloc(temp, sizeof(char)*(strlen(temp)+strlen(cfg.htpassfile)+2));
 
-		for ( j = strlen(temp); j > 0; j-- ) {
+    if (temp == 0) {
+        exits("REALLOC");
+    }
 
-			if ( temp[j] == '/' ) {
-				temp[j+1] = '\0';
-				break;
-			}
-		}
+    strcat(temp, cfg.htpassfile);
 
-	}
+    while (1) {
+        // try the path on hand
+        td = dirstat(temp);
 
-	temp = realloc(temp, sizeof(char)*(strlen(temp)+strlen(cfg.htpassfile)+2) );
+        // didnt find htpasswd file, chop the path and keep looking
+        if (td == nil) {
+            for (j = strlen(temp); j >= 0; j--) {
+                if (temp[j] == '/') {
+                    temp[j] = '\0';
+                    break;
+                }
+            }
 
-	if ( temp == 0 ) {
-		exits("REALLOC");
-	}
+            // if chopping off the lash slash leaves us with rpath then break out of the loop
+            if (strcmp(temp, rpath) == 0) {
+                break;
+            }
 
-	strcat(temp, cfg.htpassfile);
+            for (j = strlen(temp); j >= 0; j--) {
+                if (temp[j] == '/') {
+                    temp[j+1] = '\0';
+                    break;
+                }
+            }
 
-	while (1) {
+            strcat(temp, cfg.htpassfile);
+        }
 
-		// try the path on hand
+        // found a htpasswd file, break out of this htpasswd locator loop
+        else {
+            break;
+        }
+    }
 
-		td = dirstat(temp);
+    // at this point, we have in temp either equal to rpath, or a path to a htpasswd file if one exists.
 
-		// didnt find htpasswd file, chop the path and keep looking
+    // so basically, check to see: if temp is not rpath (contains a path to a htpasswd file)
+    if (strcmp(temp, rpath) != 0) {
+        // then read in the htpasswd file
+        r = read_htpasswd_file(temp, htpass);
 
-		if ( td == nil ) {
+        // if the function returned with an error code, give the client a HTTP 500 internal server error
+        if (r != 0) {
+            free(temp);
+            return 1;
+        }
 
-			for ( j = strlen(temp); j >= 0; j-- ) {
+        // if we were ok, then:
+        // split req.authorization into username and password (it should already be decoded)
+        // username and password are colon delimited
 
-				if ( temp[j] == '/' ) {
-					temp[j] = '\0';
-					break;
-				}
-			}
+        r = 0;
 
-			// if chopping off the lash slash leaves us with rpath then break out of the loop
+        // maybe we should make a copy of req.authorization before strtok'ing it...
+        u = strtok(req.authorization, ":");
 
-			if ( strcmp(temp, rpath) == 0 ) {
-				break;
-			}
+        // this sort of error handling is really crude; this should get refactored later.
+        if (u == 0) {
+            free(temp);
+            return 2;
+        }
 
-			for ( j = strlen(temp); j >= 0; j-- ) {
+        p = strtok(0, ":");
 
-				if ( temp[j] == '/' ) {
-					temp[j+1] = '\0';
-					break;
-				}
-			}
+        if (p == 0) {
+            free(temp);
+            return 2;
+        }
 
-			strcat(temp, cfg.htpassfile);
+        // compare user name and password with entries read in from htpasswd file
 
-		}
+        r = 0;
 
-		// found a htpasswd file, break out of this htpasswd locator loop
+        for (q = 0; q < htpass->n_users; q++) {
+            if (strcmp( u, *(htpass->user+q)) == 0) {
+                s = sha1( (uchar *)p, strlen(p), digest, nil);
 
-		else {
+                sprintf(up, "%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x", digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7], digest[8], digest[9], digest[10], digest[11], digest[12], digest[13], digest[14], digest[15], digest[16], digest[17], digest[18], digest[19] );
 
-			break;
-		}
+                if (strcmp(up, *(htpass->pass+q)) == 0) {
+                    r = 1;
+                    break;
+                }
+            }
+        }
 
-	}
+        // if there is no match, give http 401 authorization required error
+        if (r != 1) {
+            free(temp);
+            return 2;
+        }
 
-	// at this point, we have in temp either equal to rpath, or a path to a htpasswd file if one exists.
+        // otherwise, success; just pass through, we will return 0 and serve up the page
+    }
 
-	// so basically, check to see: if temp is not rpath (contains a path to a htpasswd file)
+    free(temp);
 
-	if ( strcmp(temp, rpath) != 0 ) {
-
-		// then read in the htpasswd file
-
-		r = read_htpasswd_file(temp, htpass);
-
-		// if the function returned with an error code, give the client a HTTP 500 internal server error
-
-		if ( r != 0 ) {
-			free(temp);
-			return 1;
-		}
-
-		// if we were ok, then:
-		// split req.authorization into username and password (it should already be decoded)
-		// username and password are colon delimited
-
-		r = 0;
-
-		// maybe we should make a copy of req.authorization before strtok'ing it...
-
-		u = strtok(req.authorization, ":");
-
-		// this sort of error handling is really crude; this should get refactored later.
-
-		if ( u == 0 ) {
-			free(temp);
-			return 2;
-		}
-
-		p = strtok(0, ":");
-
-		if ( p == 0 ) {
-			free(temp);
-			return 2;
-		}
-
-		// compare user name and password with entries read in from htpasswd file
-
-		r = 0;
-
-		for ( q = 0; q < htpass->n_users; q++ ) {
-
-			if ( strcmp( u, *(htpass->user+q)) == 0 ) {
-
-				s = sha1( (uchar *)p, strlen(p), digest, nil);
-
-				sprintf(up, "%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x%02.x", digest[0], digest[1], digest[2], digest[3], digest[4], digest[5], digest[6], digest[7], digest[8], digest[9], digest[10], digest[11], digest[12], digest[13], digest[14], digest[15], digest[16], digest[17], digest[18], digest[19] );
-
-				if ( strcmp(up, *(htpass->pass+q)) == 0 ) {
-					r = 1;
-					break;
-				}
-			}
-		}
-
-		// if there is no match, give http 401 authorization required error
-
-		if ( r != 1 ) {
-			free(temp);
-			return 2;
-		}
-
-		// otherwise, success; just pass through, we will return 0 and serve up the page
-	}
-
-	free(temp);
-
-	return 0;
-
+    return 0;
 }
+
