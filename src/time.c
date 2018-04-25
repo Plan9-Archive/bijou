@@ -2,181 +2,173 @@
 
 #include "main.h"
 
-/* generate a timestamp for log file entries */
-
+/* Generate a timestamp for log file entries */
 void timestamp(char *ptr) {
+    Tm *ti;
 
-	Tm *ti;
+    ti = localtime(time(0));
 
-	ti = localtime(time(0));
+    sprint(ptr, "%02d/%02d/%04d %02d:%02d:%02d", (ti->mon)+1, ti->mday, (ti->year)+1900,
+        ti->hour, ti->min, ti->sec);
 
-	sprint(ptr, "%02d/%02d/%04d %02d:%02d:%02d", (ti->mon)+1, ti->mday, (ti->year)+1900,
-		ti->hour, ti->min, ti->sec);
-
-	return;
+    return;
 }
 
-/* generate a timestamp suitable for a directory listing */
-
+/* Generate a timestamp suitable for a directory listing */
 void file_time(char *ptr, ulong dtime) {
+    Tm *ti;
 
-	Tm *ti;
+    char month[4];
 
-	char month[4];
+    ti = gmtime(dtime);
 
-	ti = gmtime(dtime);
+    switch (ti->mon) {
+        case 0:
+            strcpy(month, "Jan");
+            break;
 
-	switch (ti->mon) {
+        case 1:
+            strcpy(month, "Feb");
+            break;
 
-		case 0:
-			strcpy(month, "Jan");
-			break;
+        case 2:
+            strcpy(month, "Mar");
+            break;
 
-		case 1:
-			strcpy(month, "Feb");
-			break;
+        case 3:
+            strcpy(month, "Apr");
+            break;
 
-		case 2:
-			strcpy(month, "Mar");
-			break;
+        case 4:
+            strcpy(month, "May");
+            break;
 
-		case 3:
-			strcpy(month, "Apr");
-			break;
+        case 5:
+            strcpy(month, "Jun");
+            break;
 
-		case 4:
-			strcpy(month, "May");
-			break;
+        case 6:
+            strcpy(month, "Jul");
+            break;
 
-		case 5:
-			strcpy(month, "Jun");
-			break;
+        case 7:
+            strcpy(month, "Aug");
+            break;
 
-		case 6:
-			strcpy(month, "Jul");
-			break;
+        case 8:
+            strcpy(month, "Sep");
+            break;
 
-		case 7:
-			strcpy(month, "Aug");
-			break;
+        case 9:
+            strcpy(month, "Oct");
+            break;
 
-		case 8:
-			strcpy(month, "Sep");
-			break;
+        case 10:
+            strcpy(month, "Nov");
+            break;
 
-		case 9:
-			strcpy(month, "Oct");
-			break;
+        case 11:
+            strcpy(month, "Dec");
+            break;
+    }
 
-		case 10:
-			strcpy(month, "Nov");
-			break;
+    sprint(ptr, "%02d-%s-%04d %02d:%02d", ti->mday, month, (ti->year)+1900, ti->hour, ti->min);
 
-		case 11:
-			strcpy(month, "Dec");
-			break;
-	}
-
-	sprint(ptr, "%02d-%s-%04d %02d:%02d", ti->mday, month, (ti->year)+1900, ti->hour, ti->min);
-
-	return;
+    return;
 }
 
-/* generate a RFC1123 compliant timestamp for the Date header field */
-
+/* Generate a RFC1123 compliant timestamp for the Date header field */
 void rfc1123_time(char *ptr, ulong tm) {
+    Tm *ti;
 
-	Tm *ti;
+    char day[4];
+    char month[4];
 
-	char day[4];
-	char month[4];
+    ti = gmtime(tm);
 
-	ti = gmtime(tm);
+    switch (ti->wday) {
+        case 0:
+            strcpy(day, "Sun");
+            break;
 
-	switch (ti->wday) {
+        case 1:
+            strcpy(day, "Mon");
+            break;
 
-		case 0:
-			strcpy(day, "Sun");
-			break;
+        case 2:
+            strcpy(day, "Tue");
+            break;
 
-		case 1:
-			strcpy(day, "Mon");
-			break;
+        case 3:
+            strcpy(day, "Wed");
+            break;
 
-		case 2:
-			strcpy(day, "Tue");
-			break;
+        case 4:
+            strcpy(day, "Thu");
+            break;
 
-		case 3:
-			strcpy(day, "Wed");
-			break;
+        case 5:
+            strcpy(day, "Fri");
+            break;
 
-		case 4:
-			strcpy(day, "Thu");
-			break;
-
-		case 5:
-			strcpy(day, "Fri");
-			break;
-
-		case 6:
-			strcpy(day, "Sat");
-			break;
-	}
+        case 6:
+            strcpy(day, "Sat");
+            break;
+    }
 	
-	switch (ti->mon) {
+    switch (ti->mon) {
+        case 0:
+            strcpy(month, "Jan");
+            break;
 
-		case 0:
-			strcpy(month, "Jan");
-			break;
+        case 1:
+            strcpy(month, "Feb");
+            break;
 
-		case 1:
-			strcpy(month, "Feb");
-			break;
+        case 2:
+            strcpy(month, "Mar");
+            break;
 
-		case 2:
-			strcpy(month, "Mar");
-			break;
+        case 3:
+            strcpy(month, "Apr");
+            break;
 
-		case 3:
-			strcpy(month, "Apr");
-			break;
+        case 4:
+            strcpy(month, "May");
+            break;
 
-		case 4:
-			strcpy(month, "May");
-			break;
+        case 5:
+            strcpy(month, "Jun");
+            break;
 
-		case 5:
-			strcpy(month, "Jun");
-			break;
+        case 6:
+            strcpy(month, "Jul");
+            break;
 
-		case 6:
-			strcpy(month, "Jul");
-			break;
+        case 7:
+            strcpy(month, "Aug");
+            break;
 
-		case 7:
-			strcpy(month, "Aug");
-			break;
+        case 8:
+            strcpy(month, "Sep");
+            break;
 
-		case 8:
-			strcpy(month, "Sep");
-			break;
+        case 9:
+            strcpy(month, "Oct");
+            break;
 
-		case 9:
-			strcpy(month, "Oct");
-			break;
+        case 10:
+            strcpy(month, "Nov");
+            break;
 
-		case 10:
-			strcpy(month, "Nov");
-			break;
+        case 11:
+            strcpy(month, "Dec");
+            break;
+    }
 
-		case 11:
-			strcpy(month, "Dec");
-			break;
-	}
+    sprint(ptr, "%s, %02d %s %04d %02d:%02d:%02d GMT", day, ti->mday, month, (ti->year)+1900, 
+        ti->hour, ti->min, ti->sec);
 
-	sprint(ptr, "%s, %02d %s %04d %02d:%02d:%02d GMT", day, ti->mday, month, (ti->year)+1900, 
-		ti->hour, ti->min, ti->sec);
-
-	return;
+    return;
 }
+
