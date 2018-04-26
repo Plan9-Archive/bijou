@@ -3,195 +3,170 @@
 #include "main.h"
 
 /* return codes:
-  * 0 = success
-  * 1 = failed to open htpasswd file
-  * 2 = htpasswd parse error
-  * 3 = no users specified in htpasswd file or htpasswd file empty
+ * 0 = success
+ * 1 = failed to open htpasswd file
+ * 2 = htpasswd parse error
+ * 3 = no users specified in htpasswd file or htpasswd file empty
 */
 
 int read_htpasswd_file(char *path, struct htpasswd *htpass) {
+    int n, fd;
+    char *line, *temp;
 
-	int n, fd;
-	char *line, *temp;
+    int len = 1;
 
-	int len = 1;
+    int lr = 0;
 
-	int lr = 0;
+    /* initialize some configuration variables */
+    htpass->n_users = 0;
 
-	/* initialize some configuration variables */
+    htpass->user = malloc( sizeof(char *) );
 
-	htpass->n_users = 0;
+    if (htpass->user == 0) {
+        exits("MALLOC");
+    }
 
-	htpass->user = malloc( sizeof(char *) );
+    htpass->pass = malloc ( sizeof(char *) );
 
-	if ( htpass->user == 0 ) {
-		exits("MALLOC");
-	}
+    if (htpass->pass == 0) {
+        exits("MALLOC");
+    }
 
-	htpass->pass = malloc ( sizeof(char *) );
+    /* attempt to open the htpasswd file */
+    fd = open(path, OREAD);
 
-	if ( htpass->pass == 0 ) {
-		exits("MALLOC");
-	}
+    /* if the file does not exist, return to the caller with an error code */
+    if (fd < 0) {
+        return 1;
+    }
 
-	/* attempt to open the htpasswd file */
-	
-	fd = open(path, OREAD);
+    /* if it exists, read it in */
+    line = malloc(sizeof(char));
 
-	/* if the file does not exist, return to the caller with an error code */
+    while (1) {
+        n = read(fd, &(*(line+len-1)), 1);
 
-	if ( fd < 0 ) {
-		return 1;
-	}
+        line = realloc(line, (len+1)*sizeof(char));
 
-	/* if it exists, read it in */
+        if (line == 0) {
+            exits("REALLOC");
+        }
 
-	line = malloc(sizeof(char));
+        /* finished reading a line */
+        if (*(line+len-1) == '\n') {
+            /* terminate it */
 
-	while (1) {
+            *(line+len-1) = '\0';
 
-		n = read(fd, &(*(line+len-1)), 1);
+            /* exclude comments, blank lines, and lines starting with invalid characters */
+            if ((line[0] != '#' ) && (strlen(line)>0)) {
+                /* the first valid, non-comment line in the file is the realm */
 
-		line = realloc(line, (len+1)*sizeof(char));
+                if (lr == 0) {
+                    htpass->realm = malloc( sizeof(char) * (strlen(line) + 1) );
 
-		if ( line == 0 ) {
-			exits("REALLOC");
-		}
+                    if (htpass->realm == 0) {
+                        exits("MALLOC");
+                    }
 
-		/* finished reading a line */
+                    strcpy(htpass->realm, line);
+                }
 
-		if ( *(line+len-1) == '\n' ) {
+                /* otherwise the lines are interpreted as username:password */
+                /* password is sha-1 hashed */
+                else {
+                    /* make some more room in the first level of the array */
 
-			/* terminate it */
+                    if (htpass->n_users > 0) {
+                        htpass->user = realloc(htpass->user, (sizeof(char *) * (htpass->n_users+1)) );
 
-			*(line+len-1) = '\0';
+                        if (htpass->user == 0) {
+                            exits("REALLOC");
+                        }
 
-			/* exclude comments, blank lines, and lines starting with invalid characters */
+                        htpass->pass = realloc(htpass->pass, (sizeof(char *) * (htpass->n_users+1)) );
 
-			if ( ( line[0] != '#' ) && (strlen(line)>0) ) {
+                        if (htpass->pass == 0) {
+                            exits("REALLOC");
+                        }
+                    }
 
-				/* the first valid, non-comment line in the file is the realm */
+                    /* allocate some memory for the username and password */
+                    *(htpass->user+htpass->n_users) = malloc( sizeof(char) * (strlen(line) + 1) );
 
-				if ( lr == 0 ) {
+                    if (*(htpass->user+htpass->n_users) == 0) {
+                        exits("MALLOC");
+                    }
 
-					htpass->realm = malloc( sizeof(char) * (strlen(line) + 1) );
+                    *(htpass->pass+htpass->n_users) = malloc( sizeof(char) * (strlen(line) + 1) );
 
-					if ( htpass->realm == 0 ) {
-						exits("MALLOC");
-					}
+                    if (*(htpass->pass+htpass->n_users) == 0) {
+                        exits("MALLOC");
+                    }
 
-					strcpy(htpass->realm, line);
-				}
+                    /* parse each line into username:password pairs */
+                    temp = strtok(line, ":");
 
-				/* otherwise the lines are interpreted as username:password */
-				/* password is sha-1 hashed */
+                    /* parse error */
+                    if (temp == 0) {
+                        free(line);
+                        return 2;
+                    }
 
-				else {
+                    else {
+                        strcpy( *(htpass->user+htpass->n_users), temp);
+                    }
 
-					/* make some more room in the first level of the array */
+                    temp = strtok(0, ":");
 
-					if ( htpass->n_users > 0 ) {
+                    /* parse error */
+                    if (temp == 0) {
+                        free(line);
+                        return 2;
+                    }
 
-						htpass->user = realloc(htpass->user, (sizeof(char *) * (htpass->n_users+1)) );
+                    else {
+                        strcpy( *(htpass->pass+htpass->n_users), temp);
+                    }
 
-						if ( htpass->user == 0 ) {
-							exits("REALLOC");
-						}
+                    htpass->n_users = htpass->n_users + 1;
+                }
+            }
 
-						htpass->pass = realloc(htpass->pass, (sizeof(char *) * (htpass->n_users+1)) );
+            /* reset the buffer for the next input line */
+            free(line);
 
-						if ( htpass->pass == 0 ) {
-							exits("REALLOC");
-						}
+            line = malloc(sizeof(char));
 
-					}
+            if (line == 0) {
+                exits("MALLOC");
+            }
 
-					/* allocate some memory for the username and password */
+            len = 1;
 
-					*(htpass->user+htpass->n_users) = malloc( sizeof(char) * (strlen(line) + 1) );
+            lr = lr + 1;
+        }
 
-					if ( *(htpass->user+htpass->n_users) == 0 ) {
-						exits("MALLOC");
-					}
+        else {
+            len = len + 1;
+        }
 
-					*(htpass->pass+htpass->n_users) = malloc( sizeof(char) * (strlen(line) + 1) );
+        /* eof */
+        if (n == 0) {
+            break;
+        }
+    }
 
-					if ( *(htpass->pass+htpass->n_users) == 0 ) {
-						exits("MALLOC");
-					}
+    close(fd);
 
-					/* parse each line into username:password pairs */
+    free(line);
 
-					temp = strtok(line, ":");
+    if (htpass->n_users > 0) {
+        return 0;
+    }
 
-					/* parse error */
-
-					if ( temp == 0 ) {
-						free(line);
-
-						return 2;
-					}
-
-					else {
-						strcpy( *(htpass->user+htpass->n_users), temp);
-					}
-
-					temp = strtok(0, ":");
-
-					/* parse error */
-
-					if ( temp == 0 ) {
-						free(line);
-
-						return 2;
-					}
-
-					else {
-						strcpy( *(htpass->pass+htpass->n_users), temp);
-					}
-
-					htpass->n_users = htpass->n_users + 1;
-				}
-
-			}
-
-			/* reset the buffer for the next input line */
-
-			free(line);
-
-			line = malloc(sizeof(char));
-
-			if ( line == 0 ) {
-				exits("MALLOC");
-			}
-
-			len = 1;
-
-			lr = lr + 1;
-		}
-
-		else {
-
-			len = len + 1;
-		}
-
-		/* eof */
-
-		if ( n == 0 ) {
-			break;
-		}
-	}
-
-	close(fd);
-
-	free(line);
-
-	if ( htpass->n_users > 0 ) {
-		return 0;
-	}
-
-	else {
-		return 3;
-	}
-
+    else {
+        return 3;
+    }
 }
+
